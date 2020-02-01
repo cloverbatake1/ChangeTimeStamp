@@ -1,0 +1,15 @@
+# for google photo site, timezone +9:00 will be needed in Japan.
+
+import subprocess
+import re
+import pathlib
+import datetime
+
+timezone = 9
+for f in pathlib.Path('./').glob('*.[mM][tT][sS]'):
+    out = subprocess.run(['/usr/bin/exiftool', f.name], stdout=subprocess.PIPE)
+    match = re.search(r'Date/Time Original *: *(\d+:\d+:\d+ \d+:\d+:\d+)', str(out.stdout))
+    dt = datetime.datetime.strptime(match.group(1), '%Y:%m:%d %H:%M:%S')
+    subprocess.run(['touch', '-d', (dt - datetime.timedelta(hours=timezone)).strftime('%Y/%m/%d %H:%M:%S'), f.name])
+    print(f.name + ' : ' + dt.strftime('%Y/%m/%d %H:%M:%S'))
+
